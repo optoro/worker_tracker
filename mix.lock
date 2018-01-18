@@ -1,0 +1,3 @@
+%{
+  "sshex": {:hex, :sshex, "2.2.1", "e1270b8345ea2a66a11c2bb7aed22c93e3bc7bc813486f4ffd0a980e4a898160", [:mix], [], "hexpm"},
+}
