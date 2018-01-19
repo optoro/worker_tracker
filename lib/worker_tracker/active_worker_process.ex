@@ -1,20 +1,28 @@
-defmodule WorkerTracker.WorkerProcess do
+defmodule WorkerTracker.ActiveWorkerProcess do
   defstruct(
     owner: "",
     pid: 0,
     since_time: nil,
     name: "",
-    duration: 0
+    duration: 0,
+    instance: ""
   )
 
-  alias WorkerTracker.WorkerProcess
+  alias WorkerTracker.ActiveWorkerProcess
 
-  def parse_from_process_string(process_string) do
-    process_string
-    |> clean_process_string
-    |> String.split(" ")
-    |> Enum.with_index()
-    |> Enum.reduce(%WorkerProcess{}, &build_worker_process(&1, &2))
+  def process_command_string() do
+    "ps aux | grep Processing | grep -v grep"
+  end
+
+  def parse_from_process_string(process_string, instance) do
+    worker_process =
+      process_string
+      |> clean_process_string
+      |> String.split(" ")
+      |> Enum.with_index()
+      |> Enum.reduce(%ActiveWorkerProcess{}, &build_worker_process(&1, &2))
+
+    %{worker_process | instance: instance}
   end
 
   defp build_worker_process({value, 0}, worker_process) do
