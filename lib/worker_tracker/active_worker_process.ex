@@ -9,6 +9,16 @@ defmodule WorkerTracker.ActiveWorkerProcess do
 
   alias WorkerTracker.ActiveWorkerProcess
 
+  @doc ~S"""
+  Parses active worker information from the given process string
+
+  ## Example
+
+      iex> process_string = "deploy 12345 a b c d e f g h i j k l 1516831492 [some_worker_process]"
+      iex> worker_process = WorkerTracker.ActiveWorkerProcess.parse_worker_process(process_string)
+      iex> worker_process.name == "some_worker_process"
+      true
+  """
   def parse_worker_process(process_string) do
     process_string
     |> clean_process_string
