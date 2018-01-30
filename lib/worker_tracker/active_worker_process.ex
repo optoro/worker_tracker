@@ -4,25 +4,27 @@ defmodule WorkerTracker.ActiveWorkerProcess do
     pid: 0,
     since_time: nil,
     name: "",
-    duration: 0,
-    instance: ""
+    duration: 0
   )
 
   alias WorkerTracker.ActiveWorkerProcess
 
-  def process_command_string() do
-    "ps aux | grep Processing | grep -v grep"
-  end
+  @doc ~S"""
+  Parses active worker information from the given process string
 
-  def parse_from_process_string(process_string, instance) do
-    worker_process =
-      process_string
-      |> clean_process_string
-      |> String.split(" ")
-      |> Enum.with_index()
-      |> Enum.reduce(%ActiveWorkerProcess{}, &build_worker_process(&1, &2))
+  ## Example
 
-    %{worker_process | instance: instance}
+      iex> process_string = "deploy 12345 a b c d e f g h i j k l 1516831492 [some_worker_process]"
+      iex> worker_process = WorkerTracker.ActiveWorkerProcess.parse_worker_process(process_string)
+      iex> worker_process.name == "some_worker_process"
+      true
+  """
+  def parse_worker_process(process_string) do
+    process_string
+    |> clean_process_string
+    |> String.split(" ")
+    |> Enum.with_index()
+    |> Enum.reduce(%ActiveWorkerProcess{}, &build_worker_process(&1, &2))
   end
 
   defp build_worker_process({value, 0}, worker_process) do
