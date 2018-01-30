@@ -12,7 +12,7 @@ defmodule WorkerTracker.WaitingWorkerProcess do
 
   ## Example
 
-      iex> process_string = "deploy 12345 a b c d e f g h i j k l some_worker_process"
+      iex> process_string = "deploy 12345 a b c d e f g h i j k some_worker_process"
       iex> WorkerTracker.WaitingWorkerProcess.parse_worker_process(process_string)
       %WorkerTracker.WaitingWorkerProcess{owner: "deploy", pid: 12345, name: "some_worker_process"}
   """
@@ -36,7 +36,7 @@ defmodule WorkerTracker.WaitingWorkerProcess do
     %{worker_process | pid: pid}
   end
 
-  defp build_worker_process({value, 14}, worker_process) do
+  defp build_worker_process({value, 13}, worker_process) do
     %{worker_process | name: value}
   end
 
@@ -50,4 +50,3 @@ defmodule WorkerTracker.WaitingWorkerProcess do
     |> String.replace(~r/\s+/, " ")
   end
 end
-
