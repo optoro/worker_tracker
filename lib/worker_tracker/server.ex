@@ -17,4 +17,10 @@ defmodule WorkerTracker.Server do
     {:noreply, worker_instance}
   end
 
+  def handle_cast({:terminate_process, process_id, use_sudo}, worker_instance) do
+    WorkerInstance.terminate_process(worker_instance, process_id, use_sudo)
+    worker_instance = WorkerInstance.refresh_processes(worker_instance)
+    {:noreply, worker_instance}
+  end
+
 end

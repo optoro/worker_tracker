@@ -13,4 +13,8 @@ defmodule WorkerTracker do
     GenServer.cast(worker_pid, :refresh_processes)
   end
 
+  def terminate_process(worker_pid, process_id, use_sudo) do
+    GenServer.cast(worker_pid, {:terminate_process, process_id, use_sudo})
+  end
+
 end

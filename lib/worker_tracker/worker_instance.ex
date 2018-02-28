@@ -19,9 +19,19 @@ defmodule WorkerTracker.WorkerInstance do
     %{worker_instance | active_workers: active_workers, waiting_workers: waiting_workers}
   end
 
+  def terminate_process(%WorkerInstance{} = worker_instance, process_id, false = use_sudo) do
+    worker_instance.conn
+    |> execute_command("kill -9 #{process_id}")
+  end
+
+  def terminate_process(%WorkerInstance{} = worker_instance, process_id, true = use_sudo) do
+    worker_instance.conn
+    |> execute_command("sudo kill -9 #{process_id}")
+  end
+
   defp get_all_processes(conn) do
     conn
-    |> get_processes("ps aux")
+    |> execute_command("ps aux")
     |> create_process_list()
   end
 
@@ -30,7 +40,7 @@ defmodule WorkerTracker.WorkerInstance do
     %{worker_instance | conn: conn}
   end
 
-  defp get_processes(conn, command) do
+  defp execute_command(conn, command) do
     SSHEx.cmd!(conn, command)
   end
 
