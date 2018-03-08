@@ -7,7 +7,7 @@ defmodule WorkerTracker.ActiveWorkerProcess do
     duration: 0
   )
 
-  alias WorkerTracker.ActiveWorkerProcess
+  alias WorkerTracker.{ActiveWorkerProcess, ProcessHelper}
 
   @doc ~S"""
   Parses active worker information from the given process string
@@ -21,10 +21,7 @@ defmodule WorkerTracker.ActiveWorkerProcess do
   """
   def parse_worker_process(process_string) do
     process_string
-    |> clean_process_string
-    |> String.split(" ")
-    |> Enum.with_index()
-    |> Enum.reduce(%ActiveWorkerProcess{}, &build_worker_process(&1, &2))
+    |> ProcessHelper.process_fields(%ActiveWorkerProcess{}, &build_worker_process/2)
   end
 
   defp build_worker_process({value, 0}, worker_process) do
@@ -59,11 +56,5 @@ defmodule WorkerTracker.ActiveWorkerProcess do
 
   defp build_worker_process({_value, _}, worker_process) do
     worker_process
-  end
-
-  defp clean_process_string(process_string) do
-    process_string
-    |> String.trim()
-    |> String.replace(~r/\s+/, " ")
   end
 end
