@@ -45,6 +45,35 @@ defmodule WorkerTracker.ProcessHelper do
     DateTime.diff(DateTime.utc_now(), datetime)
   end
 
+  @doc ~S"""
+  A function that creates a list from the given `process_string`
+
+  ## Example
+
+      iex(1)> WorkerTracker.ProcessHelper.create_list_from_string("a\nb\nc\n")
+      ["a", "b", "c"]
+  """
+  def create_list_from_string(process_string) do
+    process_string
+    |> String.split("\n")
+    |> Enum.reject(&(&1 == ""))
+  end
+
+  @doc ~S"""
+  This function filters the `process_list` for the given `filter_string` and
+  returns the result of applying the `filter_function`.
+
+  ## Example
+
+      iex(1)> WorkerTracker.ProcessHelper.filter_and_transform_process_list(["a b", "c d"], "a", &String.split(&1))
+      [["a", "b"]]
+  """
+  def filter_and_transform_process_list(process_list, filter_string, parser_function) do
+    process_list
+    |> Enum.filter(&String.contains?(&1, filter_string))
+    |> Enum.map(&parser_function.(&1))
+  end
+
   defp clean_process_string(process_string) do
     process_string
     |> String.trim()
