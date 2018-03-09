@@ -1,8 +1,7 @@
 defmodule WorkerTracker do
-  use Supervisor
 
   def start_link(worker) do
-    Supervisor.start_link(__MODULE__, worker)
+    Supervisor.start_link(WorkerTracker.WorkerSupervisor, worker)
   end
 
   def get_instance(worker_pid) do
@@ -18,14 +17,6 @@ defmodule WorkerTracker do
   def terminate_process(worker_pid, process_id, use_sudo) do
     pid = get_child_pid(worker_pid)
     GenServer.cast(pid, {:terminate_process, process_id, use_sudo})
-  end
-
-  def init(worker) do
-    children = [
-      {WorkerTracker.Server, worker}
-    ]
-
-    Supervisor.init(children, strategy: :one_for_one)
   end
 
   defp get_child_pid(sup_pid) do
