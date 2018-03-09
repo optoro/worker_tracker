@@ -22,5 +22,4 @@ defmodule WorkerTracker.Server do
     worker_instance = WorkerInstance.refresh_processes(worker_instance)
     {:noreply, worker_instance}
   end
-
 end

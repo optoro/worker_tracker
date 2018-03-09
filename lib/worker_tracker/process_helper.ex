@@ -1,12 +1,10 @@
 defmodule WorkerTracker.ProcessHelper do
-
   @moduledoc """
   A module to help with processing process strings
   """
 
   @doc ~S"""
-  This function populates the given `accumulator` with the contents of the `process_string` based on the provided
-  callback `function`.
+  This function populates the given `accumulator` with the contents of the `process_string` based on the provided callback `function`.
 
   ## Example
 
@@ -37,8 +35,7 @@ defmodule WorkerTracker.ProcessHelper do
   end
 
   @doc ~S"""
-  A function to find the duration in seconds between utc_now and
-  the passed in seconds argument.
+  A function to find the duration in seconds between utc_now and the passed in seconds argument.
   """
   def duration_from_epoch_seconds(seconds) do
     {:ok, datetime} = seconds |> DateTime.from_unix()
@@ -60,8 +57,7 @@ defmodule WorkerTracker.ProcessHelper do
   end
 
   @doc ~S"""
-  This function filters the `process_list` for the given `filter_string` and
-  returns the result of applying the `filter_function`.
+  This function filters the `process_list` for the given `filter_string` and returns the result of applying the `filter_function`.
 
   ## Example
 

@@ -16,11 +16,17 @@ defmodule WorkerTracker.WorkerInstance do
 
     active_workers =
       processes
-      |> ProcessHelper.filter_and_transform_process_list("Processing", &ActiveWorkerProcess.parse_worker_process/1)
+      |> ProcessHelper.filter_and_transform_process_list(
+        "Processing",
+        &ActiveWorkerProcess.parse_worker_process/1
+      )
 
     waiting_workers =
       processes
-      |> ProcessHelper.filter_and_transform_process_list("Waiting", &WaitingWorkerProcess.parse_worker_process/1)
+      |> ProcessHelper.filter_and_transform_process_list(
+        "Waiting",
+        &WaitingWorkerProcess.parse_worker_process/1
+      )
 
     %{worker_instance | active_workers: active_workers, waiting_workers: waiting_workers}
   end
