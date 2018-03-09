@@ -1,19 +1,35 @@
 defmodule WorkerTracker do
-  alias WorkerTracker.Server
+  use Supervisor
 
-  def new(worker) do
-    GenServer.start_link(Server, worker)
+  def start_link(worker) do
+    Supervisor.start_link(__MODULE__, worker)
   end
 
   def get_instance(worker_pid) do
-    GenServer.call(worker_pid, :get_instance)
+    pid = get_child_pid(worker_pid)
+    GenServer.call(pid, :get_instance)
   end
 
   def refresh_processes(worker_pid) do
-    GenServer.cast(worker_pid, :refresh_processes)
+    pid = get_child_pid(worker_pid)
+    GenServer.cast(pid, :refresh_processes)
   end
 
   def terminate_process(worker_pid, process_id, use_sudo) do
-    GenServer.cast(worker_pid, {:terminate_process, process_id, use_sudo})
+    pid = get_child_pid(worker_pid)
+    GenServer.cast(pid, {:terminate_process, process_id, use_sudo})
+  end
+
+  def init(worker) do
+    children = [
+      {WorkerTracker.Server, worker}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  defp get_child_pid(sup_pid) do
+    [{module, child_pid, :worker, [module]}] = Supervisor.which_children(sup_pid)
+    child_pid
   end
 end
