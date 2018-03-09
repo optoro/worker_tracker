@@ -1,7 +1,7 @@
 defmodule WorkerTracker do
 
   def start_link(worker) do
-    Supervisor.start_link(WorkerTracker.WorkerSupervisor, worker)
+    Supervisor.start_link(WorkerTracker.Supervisor, worker)
   end
 
   def get_instance(worker_pid) do

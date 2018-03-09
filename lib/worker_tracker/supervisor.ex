@@ -1,4 +1,4 @@
-defmodule WorkerTracker.WorkerSupervisor do
+defmodule WorkerTracker.Supervisor do
   use Supervisor
 
   def init(worker) do
