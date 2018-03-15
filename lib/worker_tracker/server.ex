@@ -3,6 +3,12 @@ defmodule WorkerTracker.Server do
 
   alias WorkerTracker.WorkerInstance
 
+  # Client API
+  def start_link(worker) do
+    GenServer.start_link(__MODULE__, worker)
+  end
+
+  # Server  API
   def init(worker) do
     worker_instance = WorkerInstance.from_instance_name(worker)
     {:ok, worker_instance}
