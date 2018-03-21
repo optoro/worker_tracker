@@ -1,19 +1,42 @@
 defmodule WorkerTracker do
-  alias WorkerTracker.Server
+  use Application
 
-  def new(worker) do
-    GenServer.start_link(Server, worker)
+  alias WorkerTracker.{InstanceSupervisor, Server, InstanceCollection}
+
+  def start(_type, _args) do
+    IO.puts("Starting the WorkerTracker application...")
+    WorkerTracker.Supervisor.start_link()
   end
 
-  def get_instance(worker_pid) do
-    GenServer.call(worker_pid, :get_instance)
+  def get_instance_processes(instance) do
+    instance
+    |> find_instance()
+    |> GenServer.call(:get_instance)
   end
 
-  def refresh_processes(worker_pid) do
-    GenServer.cast(worker_pid, :refresh_processes)
+  def refresh_instance_processes(instance) do
+    instance
+    |> find_instance()
+    |> GenServer.cast(:refresh_processes)
   end
 
-  def terminate_process(worker_pid, process_id, use_sudo) do
-    GenServer.cast(worker_pid, {:terminate_process, process_id, use_sudo})
+  def terminate_instance_process(instance, process_id, use_sudo) do
+    instance
+    |> find_instance()
+    |> GenServer.cast({:terminate_process, process_id, use_sudo})
+  end
+
+  def create_instances(instances) do
+    instances
+    |> Enum.map(&Task.async(fn -> create_instance(&1) end))
+    |> Enum.map(&Task.await/1)
+  end
+
+  def create_instance(instance) do
+    DynamicSupervisor.start_child(InstanceSupervisor, {Server, instance})
+  end
+
+  def find_instance(instance) do
+    GenServer.call(InstanceCollection, {:find_instance, instance})
   end
 end
