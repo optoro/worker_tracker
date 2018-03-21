@@ -1,6 +1,8 @@
 defmodule WorkerTracker.Server do
   use GenServer
 
+  @refresh_interval :timer.seconds(10)
+
   alias WorkerTracker.WorkerInstance
 
   # Client API
@@ -12,6 +14,7 @@ defmodule WorkerTracker.Server do
   def init(instance) do
     worker_instance = WorkerInstance.from_instance_name(instance)
     WorkerTracker.InstanceCollection.add_instance(instance, self())
+    schedule_refresh()
     {:ok, worker_instance}
   end
 
@@ -28,5 +31,19 @@ defmodule WorkerTracker.Server do
     WorkerInstance.terminate_process(worker_instance, process_id, use_sudo)
     worker_instance = WorkerInstance.refresh_processes(worker_instance)
     {:noreply, worker_instance}
+  end
+
+  def handle_info(:refresh, worker_instance) do
+    worker_instance =
+      worker_instance
+      |> WorkerInstance.refresh_processes()
+
+    schedule_refresh()
+
+    {:noreply, worker_instance}
+  end
+
+  defp schedule_refresh() do
+    Process.send_after(self(), :refresh, @refresh_interval)
   end
 end
