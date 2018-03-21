@@ -36,7 +36,7 @@ defmodule WorkerTracker do
     DynamicSupervisor.start_child(InstanceSupervisor, {Server, instance})
   end
 
-  defp find_instance(instance) do
+  def find_instance(instance) do
     GenServer.call(InstanceCollection, {:find_instance, instance})
   end
 end
