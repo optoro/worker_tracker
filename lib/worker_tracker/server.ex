@@ -11,6 +11,7 @@ defmodule WorkerTracker.Server do
   # Server  API
   def init(worker) do
     worker_instance = WorkerInstance.from_instance_name(worker)
+    WorkerTracker.WorkerCollection.add_worker(worker, self())
     {:ok, worker_instance}
   end
 
