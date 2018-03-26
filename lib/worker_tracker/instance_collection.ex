@@ -42,10 +42,10 @@ defmodule WorkerTracker.InstanceCollection do
   end
 
   def handle_call({:process_alive, instance}, _from, instance_map) do
-    result = case pid = Map.get(instance_map, instance) do
+    result = case Map.get(instance_map, instance) do
       nil ->
         false
-      _ ->
+      pid ->
         Process.alive?(pid)
     end
 
