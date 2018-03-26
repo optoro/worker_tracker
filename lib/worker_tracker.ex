@@ -8,16 +8,16 @@ defmodule WorkerTracker do
     WorkerTracker.Supervisor.start_link()
   end
 
-  def get_instance_processes(instance) do
+  def get_instance(instance) do
     instance
     |> find_instance()
     |> GenServer.call(:get_instance)
   end
 
-  def refresh_instance_processes(instance) do
+  def refresh_instance(instance) do
     instance
     |> find_instance()
-    |> GenServer.cast(:refresh_processes)
+    |> GenServer.cast(:refresh_instance)
   end
 
   def terminate_instance_process(instance, process_id, use_sudo) do

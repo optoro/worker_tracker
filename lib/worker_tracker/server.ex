@@ -22,7 +22,7 @@ defmodule WorkerTracker.Server do
     {:reply, worker_instance, worker_instance}
   end
 
-  def handle_cast(:rfresh_instance, worker_instance) do
+  def handle_cast(:refresh_instance, worker_instance) do
     worker_instance = WorkerInstance.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
