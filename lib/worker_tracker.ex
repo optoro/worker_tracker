@@ -39,4 +39,8 @@ defmodule WorkerTracker do
   def find_instance(instance) do
     GenServer.call(InstanceCollection, {:find_instance, instance})
   end
+
+  def get_instances() do
+    GenServer.call(InstanceCollection, :get_instances)
+  end
 end
