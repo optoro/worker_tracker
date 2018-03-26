@@ -14,6 +14,10 @@ defmodule WorkerTracker.InstanceCollection do
     GenServer.call(__MODULE__, {:find_instance, instance})
   end
 
+  def get_instances() do
+    GenServer.call(__MODULE__, :get_instances)
+  end
+
   # Server API
   def init(:ok) do
     {:ok, %{}}
