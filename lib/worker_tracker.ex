@@ -4,7 +4,7 @@ defmodule WorkerTracker do
   alias WorkerTracker.{InstanceSupervisor, Server, InstanceCollection}
 
   def start(_type, _args) do
-    IO.puts("Starting the WorkerTracker application...")
+    IO.puts("Starting the WorkerTracker Application...")
     WorkerTracker.Supervisor.start_link()
   end
 
@@ -28,6 +28,7 @@ defmodule WorkerTracker do
 
   def create_instances(instances) do
     instances
+    |> Enum.reject(&InstanceCollection.process_alive?/1)
     |> Enum.map(&Task.async(fn -> create_instance(&1) end))
     |> Enum.map(&Task.await/1)
   end
