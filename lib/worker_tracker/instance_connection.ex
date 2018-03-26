@@ -38,7 +38,7 @@ defmodule WorkerTracker.InstanceConnection do
   end
 
   defp parse_connection_string({value, 0}, instance_connection) do
-    %{ instance_connection | program: value }
+    %{instance_connection | program: value}
   end
 
   defp parse_connection_string({value, 1}, instance_connection) do
@@ -70,5 +70,4 @@ defmodule WorkerTracker.InstanceConnection do
   defp parse_connection_string({_value, _}, instance_connection) do
     instance_connection
   end
-
 end

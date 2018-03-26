@@ -1,7 +1,13 @@
 defmodule WorkerTracker.WorkerInstance do
   defstruct name: "", active_workers: [], waiting_workers: [], conn: nil, connections: []
 
-  alias WorkerTracker.{ActiveWorkerProcess, InstanceConnection, ProcessHelper, WaitingWorkerProcess, WorkerInstance}
+  alias WorkerTracker.{
+    ActiveWorkerProcess,
+    InstanceConnection,
+    ProcessHelper,
+    WaitingWorkerProcess,
+    WorkerInstance
+  }
 
   def from_instance_name(instance_name) do
     worker_instance =
