@@ -29,7 +29,7 @@ defmodule WorkerTracker.ProcessHelper do
   """
   def process_fields_with_index(process_string) do
     process_string
-    |> clean_process_string()
+    |> clean_command_string()
     |> String.split(" ")
     |> Enum.with_index()
   end
@@ -70,8 +70,8 @@ defmodule WorkerTracker.ProcessHelper do
     |> Enum.map(&parser_function.(&1))
   end
 
-  defp clean_process_string(process_string) do
-    process_string
+  defp clean_command_string(command_string) do
+    command_string
     |> String.trim()
     |> String.replace(~r/\s+/, " ")
   end

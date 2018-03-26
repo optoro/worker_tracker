@@ -22,21 +22,21 @@ defmodule WorkerTracker.Server do
     {:reply, worker_instance, worker_instance}
   end
 
-  def handle_cast(:refresh_processes, worker_instance) do
-    worker_instance = WorkerInstance.refresh_processes(worker_instance)
+  def handle_cast(:refresh_instance, worker_instance) do
+    worker_instance = WorkerInstance.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
   def handle_cast({:terminate_process, process_id, use_sudo}, worker_instance) do
     WorkerInstance.terminate_process(worker_instance, process_id, use_sudo)
-    worker_instance = WorkerInstance.refresh_processes(worker_instance)
+    worker_instance = WorkerInstance.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
   def handle_info(:refresh, worker_instance) do
     worker_instance =
       worker_instance
-      |> WorkerInstance.refresh_processes()
+      |> WorkerInstance.refresh_instance()
 
     schedule_refresh()
 

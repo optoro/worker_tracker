@@ -1,14 +1,27 @@
 defmodule WorkerTracker.WorkerInstance do
-  defstruct name: "", active_workers: [], waiting_workers: [], conn: nil
+  defstruct name: "", active_workers: [], waiting_workers: [], conn: nil, connections: []
 
-  alias WorkerTracker.{ActiveWorkerProcess, ProcessHelper, WaitingWorkerProcess, WorkerInstance}
+  alias WorkerTracker.{
+    ActiveWorkerProcess,
+    InstanceConnection,
+    ProcessHelper,
+    WaitingWorkerProcess,
+    WorkerInstance
+  }
 
   def from_instance_name(instance_name) do
     worker_instance =
       %WorkerInstance{name: instance_name}
       |> aquire_connection()
 
-    refresh_processes(worker_instance)
+    worker_instance
+    |> refresh_instance()
+  end
+
+  def refresh_instance(%WorkerInstance{} = worker_instance) do
+    worker_instance
+    |> refresh_processes
+    |> refresh_connections
   end
 
   def refresh_processes(%WorkerInstance{} = worker_instance) do
@@ -31,6 +44,17 @@ defmodule WorkerTracker.WorkerInstance do
     %{worker_instance | active_workers: active_workers, waiting_workers: waiting_workers}
   end
 
+  def refresh_connections(worker_instance) do
+    using_sudo = Application.get_env(:worker_tracker, :use_sudo)
+
+    connections =
+      worker_instance.conn
+      |> get_all_connections(using_sudo)
+      |> Enum.map(&InstanceConnection.from_connection_string/1)
+
+    %{worker_instance | connections: connections}
+  end
+
   def terminate_process(%WorkerInstance{} = worker_instance, process_id, false = _use_sudo) do
     worker_instance.conn
     |> execute_command("kill -9 #{process_id}")
@@ -44,6 +68,18 @@ defmodule WorkerTracker.WorkerInstance do
   defp get_all_processes(conn) do
     conn
     |> execute_command("ps aux")
+    |> ProcessHelper.create_list_from_string()
+  end
+
+  defp get_all_connections(conn, true = _sudo) do
+    conn
+    |> execute_command("sudo lsof -i | grep -i established")
+    |> ProcessHelper.create_list_from_string()
+  end
+
+  defp get_all_connections(conn, false = _sudo) do
+    conn
+    |> execute_command("lsof -i | grep -i established")
     |> ProcessHelper.create_list_from_string()
   end
 

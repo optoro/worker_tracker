@@ -4,20 +4,20 @@ defmodule WorkerTracker do
   alias WorkerTracker.{InstanceSupervisor, Server, InstanceCollection}
 
   def start(_type, _args) do
-    IO.puts("Starting the WorkerTracker application...")
+    IO.puts("Starting the WorkerTracker Application...")
     WorkerTracker.Supervisor.start_link()
   end
 
-  def get_instance_processes(instance) do
+  def get_instance(instance) do
     instance
     |> find_instance()
     |> GenServer.call(:get_instance)
   end
 
-  def refresh_instance_processes(instance) do
+  def refresh_instance(instance) do
     instance
     |> find_instance()
-    |> GenServer.cast(:refresh_processes)
+    |> GenServer.cast(:refresh_instance)
   end
 
   def terminate_instance_process(instance, process_id, use_sudo) do
@@ -28,6 +28,7 @@ defmodule WorkerTracker do
 
   def create_instances(instances) do
     instances
+    |> Enum.reject(&InstanceCollection.process_alive?/1)
     |> Enum.map(&Task.async(fn -> create_instance(&1) end))
     |> Enum.map(&Task.await/1)
   end
