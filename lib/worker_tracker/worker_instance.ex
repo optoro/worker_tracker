@@ -62,7 +62,6 @@ defmodule WorkerTracker.WorkerInstance do
     |> execute_command("sudo kill -9 #{process_id}")
   end
 
-
   defp get_all_processes(%WorkerInstance{} = worker_instance) do
     worker_instance.conn
     |> execute_command("ps aux")
