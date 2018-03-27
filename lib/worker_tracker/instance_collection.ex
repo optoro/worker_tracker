@@ -46,7 +46,7 @@ defmodule WorkerTracker.InstanceCollection do
     {:reply, result, instance_map}
   end
 
-  defp pid_alive?(false = _pid) do
+  defp pid_alive?(nil = _pid) do
     false
   end
 
