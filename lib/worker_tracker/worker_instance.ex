@@ -10,11 +10,8 @@ defmodule WorkerTracker.WorkerInstance do
   }
 
   def from_instance_name(instance_name) do
-    worker_instance =
-      %WorkerInstance{name: instance_name}
-      |> aquire_connection()
-
-    worker_instance
+    %WorkerInstance{name: instance_name}
+    |> aquire_connection()
     |> refresh_instance()
   end
 
@@ -25,7 +22,7 @@ defmodule WorkerTracker.WorkerInstance do
   end
 
   def refresh_processes(%WorkerInstance{} = worker_instance) do
-    processes = worker_instance.conn |> get_all_processes()
+    processes = worker_instance |> get_all_processes()
 
     active_workers =
       processes
@@ -44,11 +41,11 @@ defmodule WorkerTracker.WorkerInstance do
     %{worker_instance | active_workers: active_workers, waiting_workers: waiting_workers}
   end
 
-  def refresh_connections(worker_instance) do
+  def refresh_connections(%WorkerInstance{} = worker_instance) do
     using_sudo = Application.get_env(:worker_tracker, :use_sudo)
 
     connections =
-      worker_instance.conn
+      worker_instance
       |> get_all_connections(using_sudo)
       |> Enum.map(&InstanceConnection.from_connection_string/1)
 
@@ -65,25 +62,26 @@ defmodule WorkerTracker.WorkerInstance do
     |> execute_command("sudo kill -9 #{process_id}")
   end
 
-  defp get_all_processes(conn) do
-    conn
+
+  defp get_all_processes(%WorkerInstance{} = worker_instance) do
+    worker_instance.conn
     |> execute_command("ps aux")
     |> ProcessHelper.create_list_from_string()
   end
 
-  defp get_all_connections(conn, true = _sudo) do
-    conn
+  defp get_all_connections(%WorkerInstance{} = worker_instance, true = _use_sudo) do
+    worker_instance.conn
     |> execute_command("sudo lsof -i | grep -i established")
     |> ProcessHelper.create_list_from_string()
   end
 
-  defp get_all_connections(conn, false = _sudo) do
-    conn
+  defp get_all_connections(%WorkerInstance{} = worker_instance, false = _use_sudo) do
+    worker_instance.conn
     |> execute_command("lsof -i | grep -i established")
     |> ProcessHelper.create_list_from_string()
   end
 
-  defp aquire_connection(worker_instance) do
+  defp aquire_connection(%WorkerInstance{} = worker_instance) do
     {:ok, conn} = SSHEx.connect(ip: worker_instance.name)
     %{worker_instance | conn: conn}
   end

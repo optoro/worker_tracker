@@ -35,14 +35,6 @@ defmodule WorkerTracker.ProcessHelper do
   end
 
   @doc ~S"""
-  A function to find the duration in seconds between utc_now and the passed in seconds argument.
-  """
-  def duration_from_epoch_seconds(seconds) do
-    {:ok, datetime} = seconds |> DateTime.from_unix()
-    DateTime.diff(DateTime.utc_now(), datetime)
-  end
-
-  @doc ~S"""
   A function that creates a list from the given `process_string`
 
   ## Example

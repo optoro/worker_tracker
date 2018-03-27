@@ -12,8 +12,7 @@ defmodule WorkerTracker.InstanceConnection do
     state: ""
   )
 
-  alias WorkerTracker.InstanceConnection
-  alias WorkerTracker.ProcessHelper
+  alias WorkerTracker.{InstanceConnection, ProcessHelper}
 
   @doc ~S"""
     Parse connection information from lsof output string
