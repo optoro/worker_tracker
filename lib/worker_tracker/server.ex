@@ -3,7 +3,7 @@ defmodule WorkerTracker.Server do
 
   @refresh_interval :timer.seconds(10)
 
-  alias WorkerTracker.WorkerInstance
+  alias WorkerTracker.{RegistryHelper, WorkerInstance}
 
   # Client API
   def start_link(instance) do
@@ -13,7 +13,7 @@ defmodule WorkerTracker.Server do
   # Server  API
   def init(instance) do
     worker_instance = WorkerInstance.from_instance_name(instance)
-    WorkerTracker.InstanceCollection.add_instance(instance, self())
+    RegistryHelper.register(instance)
     schedule_refresh()
     {:ok, worker_instance}
   end
