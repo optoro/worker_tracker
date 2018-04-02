@@ -58,6 +58,6 @@ defmodule WorkerTracker do
 
   defp instance_exists?(instance) do
     get_instances()
-    |> Enum.any?(& &1 == instance)
+    |> Enum.any?(&(&1 == instance))
   end
 end
