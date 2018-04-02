@@ -24,8 +24,8 @@ defmodule WorkerTracker do
     using_sudo = Application.get_env(:worker_tracker, :use_sudo)
 
     instance
-    |> RegistryHelper.lookup()
-    |> GenServer.cast({:terminate_process, process_id, using_sudo})
+    |> find_instance()
+    |> GenServer.cast(pid, {:terminate_process, process_id, using_sudo})
   end
 
   def create_instances(instances) do
