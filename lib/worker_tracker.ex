@@ -25,7 +25,7 @@ defmodule WorkerTracker do
 
     instance
     |> find_instance()
-    |> GenServer.cast(pid, {:terminate_process, process_id, using_sudo})
+    |> GenServer.cast({:terminate_process, process_id, using_sudo})
   end
 
   def create_instances(instances) do
