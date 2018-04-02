@@ -1,7 +1,7 @@
 defmodule WorkerTracker do
   use Application
 
-  alias WorkerTracker.{InstanceSupervisor, Server, InstanceCollection}
+  alias WorkerTracker.{InstanceSupervisor, RegistryHelper, Server}
 
   def start(_type, _args) do
     IO.puts("Starting the WorkerTracker Application...")
@@ -24,26 +24,40 @@ defmodule WorkerTracker do
     using_sudo = Application.get_env(:worker_tracker, :use_sudo)
 
     instance
-    |> find_instance()
+    |> RegistryHelper.lookup()
     |> GenServer.cast({:terminate_process, process_id, using_sudo})
   end
 
   def create_instances(instances) do
     instances
-    |> Enum.reject(&InstanceCollection.process_alive?/1)
     |> Enum.map(&Task.async(fn -> create_instance(&1) end))
     |> Enum.map(&Task.await/1)
   end
 
   def create_instance(instance) do
-    DynamicSupervisor.start_child(InstanceSupervisor, {Server, instance})
+    case instance_exists?(instance) do
+      true ->
+        {:ok, :already_exists}
+
+      _ ->
+        DynamicSupervisor.start_child(InstanceSupervisor, {Server, instance})
+    end
   end
 
   def find_instance(instance) do
-    GenServer.call(InstanceCollection, {:find_instance, instance})
+    {pid, _instance_name} =
+      instance
+      |> RegistryHelper.lookup()
+
+    pid
   end
 
   def get_instances() do
-    GenServer.call(InstanceCollection, :get_instances)
+    RegistryHelper.keys()
+  end
+
+  defp instance_exists?(instance) do
+    get_instances()
+    |> Enum.any?(& &1 == instance)
   end
 end

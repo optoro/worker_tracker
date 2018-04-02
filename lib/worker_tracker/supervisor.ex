@@ -1,7 +1,7 @@
 defmodule WorkerTracker.Supervisor do
   use Supervisor
 
-  alias WorkerTracker.{InstanceSupervisor, InstanceCollection}
+  alias WorkerTracker.InstanceSupervisor
 
   def start_link() do
     IO.puts("Starting the WorkerTracker Supervisor...")
@@ -10,7 +10,7 @@ defmodule WorkerTracker.Supervisor do
 
   def init(:ok) do
     children = [
-      InstanceCollection,
+      {Registry, [keys: :duplicate, name: WorkerTracker.Registry]},
       {DynamicSupervisor, name: InstanceSupervisor, strategy: :one_for_one}
     ]
 
