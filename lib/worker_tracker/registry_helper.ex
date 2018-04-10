@@ -13,4 +13,12 @@ defmodule WorkerTracker.RegistryHelper do
     Registry.lookup(WorkerTracker.Registry, "workers")
     |> Enum.map(fn {_pid, instance} -> instance end)
   end
+
+  def dispatch(registry, channel, payload) do
+    Registry.dispatch(registry, channel, fn entries ->
+      for {pid, name} <- entries do
+        send(pid, {String.to_atom(channel), payload})
+      end
+    end)
+  end
 end
