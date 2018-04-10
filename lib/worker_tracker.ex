@@ -26,6 +26,9 @@ defmodule WorkerTracker do
     instance
     |> find_instance()
     |> GenServer.cast({:terminate_process, process_id, using_sudo})
+
+    %{instance: instance, pid: process_id, timestamp: DateTime.utc_now()}
+    |> notify_terminated()
   end
 
   def create_instances(instances) do
@@ -59,5 +62,9 @@ defmodule WorkerTracker do
   defp instance_exists?(instance) do
     get_instances()
     |> Enum.any?(&(&1 == instance))
+  end
+
+  defp notify_terminated(payload) do
+    RegistryHelper.dispatch(WorkerTracker.Notifier, "proceess_terminated", payload)
   end
 end
