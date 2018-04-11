@@ -65,6 +65,6 @@ defmodule WorkerTracker do
   end
 
   defp notify_terminated(payload) do
-    RegistryHelper.dispatch(WorkerTracker.Notifier, "proceess_terminated", payload)
+    RegistryHelper.dispatch(WorkerTracker.Notifier, "process_terminated", payload)
   end
 end
