@@ -20,14 +20,14 @@ defmodule WorkerTracker do
     |> GenServer.cast(:refresh_instance)
   end
 
-  def terminate_instance_process(instance, process_id) do
+  def terminate_instance_process(instance, process_id, reason \\ "") do
     using_sudo = Application.get_env(:worker_tracker, :use_sudo)
 
     instance
     |> find_instance()
     |> GenServer.cast({:terminate_process, process_id, using_sudo})
 
-    %{instance: instance, pid: process_id, timestamp: DateTime.utc_now()}
+    %{instance: instance, pid: process_id, timestamp: DateTime.utc_now(), description: reason}
     |> notify_terminated()
   end
 
