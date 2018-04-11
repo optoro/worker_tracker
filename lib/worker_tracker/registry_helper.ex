@@ -16,7 +16,7 @@ defmodule WorkerTracker.RegistryHelper do
 
   def dispatch(registry, channel, payload) do
     Registry.dispatch(registry, channel, fn entries ->
-      for {pid, name} <- entries do
+      for {pid, _name} <- entries do
         send(pid, {String.to_atom(channel), payload})
       end
     end)
