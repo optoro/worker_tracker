@@ -31,10 +31,6 @@ defmodule WorkerTracker.WorkerInstance do
         &ActiveWorkerProcess.parse_worker_process/1
       )
 
-    active_workers =
-      active_workers
-      |> Enum.map(&ActiveWorkerProcess.add_parent_pid(&1, processes))
-
     waiting_workers =
       processes
       |> ProcessHelper.filter_and_transform_process_list(
@@ -68,7 +64,7 @@ defmodule WorkerTracker.WorkerInstance do
 
   defp get_all_processes(%WorkerInstance{} = worker_instance) do
     worker_instance.conn
-    |> execute_command("ps aux")
+    |> execute_command("ps -ejf")
     |> ProcessHelper.create_list_from_string()
   end
 
