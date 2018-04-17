@@ -48,7 +48,7 @@ defmodule WorkerTracker do
   end
 
   def find_instance(instance) do
-    {pid, _instance_name} =
+    {pid, ^instance} =
       instance
       |> RegistryHelper.lookup()
 
@@ -60,8 +60,7 @@ defmodule WorkerTracker do
   end
 
   defp instance_exists?(instance) do
-    get_instances()
-    |> Enum.any?(&(&1 == instance))
+    RegistryHelper.registry_contains?(instance)
   end
 
   defp notify_terminated(payload) do
