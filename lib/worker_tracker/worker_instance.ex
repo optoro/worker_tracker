@@ -31,6 +31,10 @@ defmodule WorkerTracker.WorkerInstance do
         &ActiveWorkerProcess.parse_worker_process/1
       )
 
+    active_workers =
+      active_workers
+      |> Enum.map(&ActiveWorkerProcess.add_parent_pid(&1, processes))
+
     waiting_workers =
       processes
       |> ProcessHelper.filter_and_transform_process_list(

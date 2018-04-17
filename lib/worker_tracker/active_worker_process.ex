@@ -2,11 +2,12 @@ defmodule WorkerTracker.ActiveWorkerProcess do
   defstruct(
     owner: "",
     pid: 0,
+    ppid: 0,
     name: "",
     start_time_seconds: 0
   )
 
-  alias WorkerTracker.{ActiveWorkerProcess, ProcessHelper}
+  alias WorkerTracker.{ActiveWorkerProcess, ParentWorkerProcess, ProcessHelper}
 
   @doc ~S"""
   Parses active worker information from the given process string
@@ -20,6 +21,17 @@ defmodule WorkerTracker.ActiveWorkerProcess do
   def parse_worker_process(process_string) do
     process_string
     |> ProcessHelper.process_fields(%ActiveWorkerProcess{}, &build_worker_process/2)
+  end
+
+  def add_parent_pid(%ActiveWorkerProcess{} = worker_process, processes) do
+    parent_process =
+      processes
+      |> Enum.filter(&String.contains?(&1, "Forked"))
+      |> Enum.filter(&String.contains?(&1, Integer.to_string(worker_process.pid)))
+      |> List.first()
+      |> ParentWorkerProcess.parse_worker_process()
+
+    %{worker_process | ppid: parent_process.pid}
   end
 
   defp build_worker_process({value, 0}, worker_process) do
