@@ -64,7 +64,7 @@ defmodule WorkerTracker.WorkerInstance do
 
   defp get_all_processes(%WorkerInstance{} = worker_instance) do
     worker_instance.conn
-    |> execute_command("ps aux")
+    |> execute_command("ps -ejf")
     |> ProcessHelper.create_list_from_string()
   end
 
