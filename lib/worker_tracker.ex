@@ -1,11 +1,11 @@
 defmodule WorkerTracker do
   use Application
 
-  alias WorkerTracker.{InstanceSupervisor, RegistryHelper, Server}
+  alias WorkerTracker.{RegistryHelper, Server}
 
   def start(_type, _args) do
     IO.puts("Starting the WorkerTracker Application...")
-    WorkerTracker.Supervisor.start_link()
+    WorkerTrackerSupervisor.start_link()
   end
 
   def get_instance(instance) do

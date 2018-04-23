@@ -1,7 +1,5 @@
-defmodule WorkerTracker.Supervisor do
+defmodule WorkerTrackerSupervisor do
   use Supervisor
-
-  alias WorkerTracker.InstanceSupervisor
 
   def start_link() do
     IO.puts("Starting the WorkerTracker Supervisor...")
