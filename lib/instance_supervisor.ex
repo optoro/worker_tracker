@@ -1,4 +1,4 @@
-defmodule WorkerTracker.InstanceSupervisor do
+defmodule InstanceSupervisor do
   def init() do
     children = [
       {DynamicSupervisor, name: __MODULE__, strategy: :one_for_one}
