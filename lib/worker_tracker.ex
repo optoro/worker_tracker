@@ -33,8 +33,7 @@ defmodule WorkerTracker do
 
   def create_instances(instances) do
     instances
-    |> Enum.map(&Task.async(fn -> create_instance(&1) end))
-    |> Enum.map(&Task.await/1)
+    |> Enum.map(&Task.start(fn -> create_instance(&1) end))
   end
 
   def create_instance(instance) do
