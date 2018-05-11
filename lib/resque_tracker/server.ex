@@ -29,4 +29,22 @@ defmodule ResqueTracker.Server do
 
     {:reply, result, conn}
   end
+
+  def handle_call({:get_failed_workers, count}, _from, conn) do
+    {:ok, length} =
+      conn
+      |> Redix.command(["LLEN", "resque:failed"])
+
+    index =
+      (length - count)
+      |> Integer.to_string()
+
+    {:ok, data} =
+      conn
+      |> Redix.command(["LRANGE", "resque:failed", index, "-1"])
+
+    data = data |> Enum.reverse()
+
+    {:reply, data, conn}
+  end
 end

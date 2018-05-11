@@ -12,11 +12,11 @@ check_format:
   script:
     - mix format --check-formatted --dry-run
   tags:
-    - ruby
+    - docker-executor
 
 run_tests:
   stage: test
   script:
     - mix test
   tags:
-    - ruby
+    - docker-executor
