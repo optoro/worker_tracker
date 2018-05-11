@@ -13,6 +13,10 @@ defmodule ResqueTracker do
     GenServer.call(Server, {:get_worker_data, instance_name, pid, worker_name})
   end
 
+  def get_worker_failures(count) do
+    GenServer.call(Server, {:get_failed_workers, count})
+  end
+
   defp transform_worker_name(worker) do
     ~r/([A-Z][a-z]+)/
     |> Regex.scan(worker)
