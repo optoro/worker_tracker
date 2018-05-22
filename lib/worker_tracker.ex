@@ -34,7 +34,7 @@ defmodule WorkerTracker do
 
   def create_instances(instances) do
     instances
-    |> Enum.map(&Task.start(fn -> create_instance(&1) end))
+    |> Enum.map(&create_instance/1)
   end
 
   def create_instance(instance) do
@@ -43,7 +43,7 @@ defmodule WorkerTracker do
         {:ok, :already_exists}
 
       _ ->
-        DynamicSupervisor.start_child(InstanceSupervisor, {Server, instance})
+        Task.start(fn -> DynamicSupervisor.start_child(InstanceSupervisor, {Server, instance}) end)
     end
   end
 
