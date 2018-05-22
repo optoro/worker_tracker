@@ -25,7 +25,7 @@ defmodule WorkerTracker do
 
     instance
     |> find_instance()
-    |> GenServer.cast({:terminate_process, process_id, using_sudo})
+    |> GenServer.call({:terminate_process, process_id, using_sudo})
 
     %{instance: instance, pid: process_id, timestamp: DateTime.utc_now()}
     |> Map.merge(payload)
