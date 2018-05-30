@@ -12,7 +12,7 @@ defmodule WorkerTrackerSupervisor do
       {Registry, [keys: :unique, name: WorkerTracker.InstanceRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.WorkerRegistry]},
       {DynamicSupervisor, name: DynamicSupervisor, strategy: :one_for_one},
-      {WorkerController, []}
+      {WorkerServer, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
