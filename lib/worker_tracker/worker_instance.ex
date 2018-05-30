@@ -1,5 +1,5 @@
 defmodule WorkerTracker.WorkerInstance do
-  defstruct name: "", active_workers: [], waiting_workers: [], conn: nil, connections: []
+  defstruct name: "", active_workers: [], waiting_workers: [], connections: []
 
   alias WorkerTracker.{
     ActiveWorkerProcess,
@@ -11,7 +11,6 @@ defmodule WorkerTracker.WorkerInstance do
 
   def from_instance_name(instance_name) do
     %WorkerInstance{name: instance_name}
-    |> aquire_connection()
     |> refresh_instance()
   end
 
@@ -53,39 +52,34 @@ defmodule WorkerTracker.WorkerInstance do
   end
 
   def terminate_process(%WorkerInstance{} = worker_instance, process_id, false = _use_sudo) do
-    worker_instance.conn
+    worker_instance.name
     |> execute_command("kill -9 #{process_id}")
   end
 
   def terminate_process(%WorkerInstance{} = worker_instance, process_id, true = _use_sudo) do
-    worker_instance.conn
+    worker_instance.name
     |> execute_command("sudo kill -9 #{process_id}")
   end
 
   defp get_all_processes(%WorkerInstance{} = worker_instance) do
-    worker_instance.conn
+    worker_instance.name
     |> execute_command("ps -ejf")
     |> ProcessHelper.create_list_from_string()
   end
 
   defp get_all_connections(%WorkerInstance{} = worker_instance, true = _use_sudo) do
-    worker_instance.conn
+    worker_instance.name
     |> execute_command("sudo lsof -i | grep -i established")
     |> ProcessHelper.create_list_from_string()
   end
 
   defp get_all_connections(%WorkerInstance{} = worker_instance, false = _use_sudo) do
-    worker_instance.conn
+    worker_instance.name
     |> execute_command("lsof -i | grep -i established")
     |> ProcessHelper.create_list_from_string()
   end
 
-  defp aquire_connection(%WorkerInstance{} = worker_instance) do
-    {:ok, conn} = SSHEx.connect(ip: worker_instance.name)
-    %{worker_instance | conn: conn}
-  end
-
-  defp execute_command(conn, command) do
-    SSHEx.cmd!(conn, command)
+  defp execute_command(instance, command) do
+    WorkerTracker.InstanceServer.execute_command(instance, command)
   end
 end

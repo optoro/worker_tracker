@@ -7,13 +7,37 @@ defmodule WorkerTracker.Server do
 
   # Client API
   def start_link(instance) do
-    GenServer.start_link(__MODULE__, instance)
+    name = name_via_registry(instance)
+    GenServer.start_link(__MODULE__, instance, name: name)
+  end
+
+  def get_instance(instance) do
+    instance
+    |> name_via_registry()
+    |> GenServer.call(:get_instance)
+  end
+
+  def refresh_instance(instance) do
+    instance
+    |> name_via_registry()
+    |> GenServer.cast(:refresh_instance)
+  end
+
+  def terminate_instance_process(instance, process_id, payload \\ %{}) do
+    using_sudo = Application.get_env(:worker_tracker, :use_sudo)
+
+    instance
+    |> name_via_registry()
+    |> GenServer.call({:terminate_process, process_id, using_sudo})
+
+    %{instance: instance, pid: process_id, timestamp: DateTime.utc_now()}
+    |> Map.merge(payload)
+    |> notify_terminated()
   end
 
   # Server  API
   def init(instance) do
     worker_instance = WorkerInstance.from_instance_name(instance)
-    RegistryHelper.register(instance)
     schedule_refresh()
     {:ok, worker_instance}
   end
@@ -51,5 +75,13 @@ defmodule WorkerTracker.Server do
 
   defp schedule_refresh() do
     Process.send_after(self(), :refresh, @refresh_interval)
+  end
+
+  defp name_via_registry(name) do
+    {:via, Registry, {WorkerTracker.WorkerRegistry, name}}
+  end
+
+  defp notify_terminated(payload) do
+    RegistryHelper.dispatch(WorkerTracker.Notifier, "process_terminated", payload)
   end
 end

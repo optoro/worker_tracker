@@ -28,17 +28,17 @@ defmodule WorkerTracker.RegistryHelper do
   """
   @spec keys() :: [String.t()]
   def keys() do
-    Registry.lookup(WorkerTracker.Registry, "workers")
+    Registry.lookup(WorkerTracker.WorkerRegistry, "workers")
     |> Enum.map(fn {_pid, instance} -> instance end)
   end
 
   @doc ~S"""
     Determine if the WorkerTracker Registry contains the given `instance`.
   """
-  @spec registry_contains?(String.t()) :: true | false
-  def registry_contains?(instance) do
-    case Registry.match(WorkerTracker.Registry, "workers", instance) do
-      [{_pid, ^instance}] -> true
+  @spec registry_contains?(registry, String.t()) :: true | false
+  def registry_contains?(registry, instance) do
+    case Registry.lookup(registry, instance) do
+      [{_pid, _}] -> true
       _ -> false
     end
   end
@@ -53,5 +53,13 @@ defmodule WorkerTracker.RegistryHelper do
         send(pid, {String.to_atom(channel), payload})
       end
     end)
+  end
+
+  @doc ~S"""
+    Construct a name via registry tuple for naming GenServer processes
+  """
+  @spec dispatch(registry, String.t(), any()) :: {:via, Registry, {registry, String.t()}}
+  def name_via_registry(registry, instance) do
+    {:via, Registry, {registry, instance}}
   end
 end
