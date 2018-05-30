@@ -28,7 +28,7 @@ defmodule WorkerTracker.RegistryHelper do
   """
   @spec keys() :: [String.t()]
   def keys() do
-    Registry.lookup(WorkerTracker.WorkerRegistry, "workers")
+    Registry.lookup(WorkerTracker.InstanceRegistry, "instances")
     |> Enum.map(fn {_pid, instance} -> instance end)
   end
 

@@ -11,6 +11,7 @@ defmodule WorkerTracker do
   defdelegate get_instance(instance), to: WorkerTracker.Server
   defdelegate refresh_instance(instance), to: WorkerTracker.Server
   defdelegate terminate_instance_process(instance, process_id, payload), to: WorkerTracker.Server
+  defdelegate get_instances(), to: WorkerController
 
   def create_instances(instances) do
     instances
