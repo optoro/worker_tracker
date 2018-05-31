@@ -1,6 +1,7 @@
 defmodule WorkerTracker.InstanceServer do
   use GenServer
 
+  alias __MODULE__
   alias WorkerTracker.RegistryHelper
 
   def start_link(instance) do
