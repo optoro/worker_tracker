@@ -16,22 +16,7 @@ defmodule WorkerTracker do
 
   defdelegate get_instances(), to: WorkerServer
 
-  def create_instances(instances) do
-    instances
-    |> Enum.map(&create_instance/1)
-  end
-
-  def create_instance(instance) do
-    case instance_exists?(instance) do
-      true ->
-        {:ok, :already_exists}
-
-      _ ->
-        Task.start(fn ->
-          DynamicSupervisor.start_child(DynamicSupervisor, {InstanceServer, instance})
-        end)
-    end
-  end
+  defdelegate create_instances(instances), to: WorkerTracker.InstanceServer
 
   defp instance_exists?(instance) do
     WorkerTracker.InstanceServer.instance_exists?(instance)
