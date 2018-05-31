@@ -8,6 +8,11 @@ defmodule WorkerTracker.InstanceServer do
     GenServer.start_link(__MODULE__, instance, name: name)
   end
 
+  def create_instances(instances) do
+    instances
+    |> Enum.map(&create_instance/1)
+  end
+
   def execute_command(instance, command) do
     name = build_name(instance)
     GenServer.call(name, {:execute_command, command})
@@ -41,5 +46,17 @@ defmodule WorkerTracker.InstanceServer do
 
   defp build_name(instance) do
     RegistryHelper.name_via_registry(WorkerTracker.InstanceRegistry, instance)
+  end
+
+  defp create_instance(instance) do
+    case instance_exists?(instance) do
+      true ->
+        {:ok, :already_exists}
+
+      _ ->
+        Task.start(fn ->
+          DynamicSupervisor.start_child(DynamicSupervisor, {InstanceServer, instance})
+        end)
+    end
   end
 end
