@@ -10,6 +10,7 @@ defmodule WorkerServer do
   end
 
   def init(:ok) do
+    Registry.register(WorkerTracker.Notifier, "worker_instance_ready", self())
     Registry.register(WorkerTracker.Notifier, "connection_ready", self())
     {:ok, []}
   end
@@ -19,12 +20,15 @@ defmodule WorkerServer do
   end
 
   def handle_info({:connection_ready, instance}, instances) do
-    instances = [instance | instances]
-
     Task.start(fn ->
       DynamicSupervisor.start_child(DynamicSupervisor, {WorkerTracker.Server, instance})
     end)
 
+    {:noreply, instances}
+  end
+
+  def handle_info({:worker_instance_ready, instance}, instances) do
+    instances = [instance | instances]
     {:noreply, instances}
   end
 end

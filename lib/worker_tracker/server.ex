@@ -39,6 +39,7 @@ defmodule WorkerTracker.Server do
   def init(instance) do
     worker_instance = WorkerInstance.from_instance_name(instance)
     schedule_refresh()
+    RegistryHelper.dispatch(WorkerTracker.Notifier, "worker_instance_ready", instance)
     {:ok, worker_instance}
   end
 
