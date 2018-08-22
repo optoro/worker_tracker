@@ -8,13 +8,13 @@ defmodule WorkerTracker.Server do
   # Client API
   def start_link(instance) do
     name = name_via_registry(instance)
-    GenServer.start_link(__MODULE__, instance, name: name)
+    GenServer.start_link(__MODULE__, instance, name: name, timeout: :infinity)
   end
 
   def get_instance(instance) do
     instance
     |> name_via_registry()
-    |> GenServer.call(:get_instance)
+    |> GenServer.call(:get_instance, :infinity)
   end
 
   def refresh_instance(instance) do
@@ -28,7 +28,7 @@ defmodule WorkerTracker.Server do
 
     instance
     |> name_via_registry()
-    |> GenServer.call({:terminate_process, process_id, using_sudo})
+    |> GenServer.call({:terminate_process, process_id, using_sudo}, :infinity)
 
     %{instance: instance, pid: process_id, timestamp: DateTime.utc_now()}
     |> Map.merge(payload)
@@ -71,6 +71,10 @@ defmodule WorkerTracker.Server do
 
     schedule_refresh()
 
+    {:noreply, worker_instance}
+  end
+
+  def handle_info(:timeout, worker_instance) do
     {:noreply, worker_instance}
   end
 

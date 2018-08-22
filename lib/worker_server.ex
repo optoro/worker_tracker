@@ -21,8 +21,12 @@ defmodule WorkerServer do
 
   def handle_info({:connection_ready, instance}, instances) do
     Task.start(fn ->
-      DynamicSupervisor.start_child(DynamicSupervisor, {WorkerTracker.Server, instance})
+      DynamicSupervisor.start_child(WorkerSupervisor, {WorkerTracker.Server, instance})
     end)
+
+    instances =
+      instances
+      |> MapSet.put(instance)
 
     {:noreply, instances}
   end
