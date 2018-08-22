@@ -11,7 +11,9 @@ defmodule WorkerTrackerSupervisor do
       {Registry, [keys: :duplicate, name: WorkerTracker.Notifier]},
       {Registry, [keys: :unique, name: WorkerTracker.InstanceRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.WorkerRegistry]},
-      {DynamicSupervisor, name: DynamicSupervisor, strategy: :one_for_one},
+      {DynamicSupervisor, name: InstanceSupervisor, strategy: :one_for_one},
+      {DynamicSupervisor, name: WorkerSupervisor, strategy: :one_for_one},
+      {Task.Supervisor, name: WorkerTracker.TaskSupervisor},
       {WorkerServer, []}
     ]
 

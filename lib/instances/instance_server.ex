@@ -6,7 +6,7 @@ defmodule WorkerTracker.InstanceServer do
 
   def start_link(instance) do
     name = build_name(instance)
-    GenServer.start_link(__MODULE__, instance, name: name)
+    GenServer.start_link(__MODULE__, instance, name: name, timeout: :infinity)
   end
 
   def create_instances(instances) do
@@ -16,7 +16,7 @@ defmodule WorkerTracker.InstanceServer do
 
   def execute_command(instance, command) do
     name = build_name(instance)
-    GenServer.call(name, {:execute_command, command})
+    GenServer.call(name, {:execute_command, command}, :infinity)
   end
 
   def instance_exists?(instance) do
@@ -55,9 +55,12 @@ defmodule WorkerTracker.InstanceServer do
         {:ok, :already_exists}
 
       _ ->
-        Task.start(fn ->
-          DynamicSupervisor.start_child(DynamicSupervisor, {InstanceServer, instance})
-        end)
+        Task.Supervisor.start_child(
+          WorkerTracker.TaskSupervisor,
+          DynamicSupervisor,
+          :start_child,
+          [InstanceSupervisor, {InstanceServer, instance}]
+        )
     end
   end
 end

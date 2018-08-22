@@ -11,19 +11,21 @@ defmodule WorkerServer do
 
   def init(:ok) do
     Registry.register(WorkerTracker.Notifier, "connection_ready", self())
-    {:ok, []}
+    {:ok, MapSet.new()}
   end
 
   def handle_call(:get_instances, _from, instances) do
-    {:reply, instances, instances}
+    {:reply, MapSet.to_list(instances), instances}
   end
 
   def handle_info({:connection_ready, instance}, instances) do
-    instances = [instance | instances]
-
     Task.start(fn ->
-      DynamicSupervisor.start_child(DynamicSupervisor, {WorkerTracker.Server, instance})
+      DynamicSupervisor.start_child(WorkerSupervisor, {WorkerTracker.Server, instance})
     end)
+
+    instances =
+      instances
+      |> MapSet.put(instance)
 
     {:noreply, instances}
   end
