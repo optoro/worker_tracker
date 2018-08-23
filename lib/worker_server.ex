@@ -11,7 +11,6 @@ defmodule WorkerServer do
   end
 
   def init(:ok) do
-    Registry.register(WorkerTracker.Notifier, "worker_instance_ready", self())
     Registry.register(WorkerTracker.Notifier, "connection_ready", self())
     {:ok, nil}
   end
@@ -21,11 +20,6 @@ defmodule WorkerServer do
       DynamicSupervisor.start_child(WorkerSupervisor, {WorkerTracker.Server, instance})
     end)
 
-    {:noreply, instances}
-  end
-
-  def handle_info({:worker_instance_ready, instance}, instances) do
-    instances = MapSet.put(instances, instance)
     {:noreply, instances}
   end
 end
