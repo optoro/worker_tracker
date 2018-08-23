@@ -6,27 +6,20 @@ defmodule WorkerServer do
   end
 
   def get_instances() do
-    GenServer.call(__MODULE__, :get_instances)
+    Registry.lookup(WorkerTracker.CollectionRegistry, "instances")
+    |> Enum.map(fn {_pid, instance} -> instance end)
   end
 
   def init(:ok) do
     Registry.register(WorkerTracker.Notifier, "worker_instance_ready", self())
     Registry.register(WorkerTracker.Notifier, "connection_ready", self())
-    {:ok, MapSet.new()}
-  end
-
-  def handle_call(:get_instances, _from, instances) do
-    {:reply, MapSet.to_list(instances), instances}
+    {:ok, nil}
   end
 
   def handle_info({:connection_ready, instance}, instances) do
     Task.start(fn ->
       DynamicSupervisor.start_child(WorkerSupervisor, {WorkerTracker.Server, instance})
     end)
-
-    instances =
-      instances
-      |> MapSet.put(instance)
 
     {:noreply, instances}
   end

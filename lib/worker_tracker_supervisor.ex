@@ -9,10 +9,11 @@ defmodule WorkerTrackerSupervisor do
   def init(:ok) do
     children = [
       {Registry, [keys: :duplicate, name: WorkerTracker.Notifier]},
+      {Registry, [keys: :duplicate, name: WorkerTracker.CollectionRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.InstanceRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.WorkerRegistry]},
-      {DynamicSupervisor, name: InstanceSupervisor, strategy: :one_for_one, max_restarts: 100},
-      {DynamicSupervisor, name: WorkerSupervisor, strategy: :one_for_one, max_restarts: 100},
+      {DynamicSupervisor, name: InstanceSupervisor, strategy: :one_for_one},
+      {DynamicSupervisor, name: WorkerSupervisor, strategy: :one_for_one},
       {Task.Supervisor, name: WorkerTracker.TaskSupervisor},
       {WorkerServer, []}
     ]

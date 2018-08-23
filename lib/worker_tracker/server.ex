@@ -38,6 +38,7 @@ defmodule WorkerTracker.Server do
   # Server  API
   def init(instance) do
     worker_instance = WorkerInstance.from_instance_name(instance)
+    register_with_registry(instance)
     schedule_refresh()
     RegistryHelper.dispatch(WorkerTracker.Notifier, "worker_instance_ready", instance)
     {:ok, worker_instance}
@@ -84,6 +85,10 @@ defmodule WorkerTracker.Server do
 
   defp name_via_registry(name) do
     {:via, Registry, {WorkerTracker.WorkerRegistry, name}}
+  end
+
+  defp register_with_registry(name) do
+    Registry.register(WorkerTracker.CollectionRegistry, "instances", name)
   end
 
   defp notify_terminated(payload) do
