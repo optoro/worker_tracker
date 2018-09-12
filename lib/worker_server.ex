@@ -15,11 +15,14 @@ defmodule WorkerServer do
     {:ok, nil}
   end
 
-  def handle_info({:connection_ready, instance}, instances) do
+  def handle_info({:broadcast, instance}, _state) do
     Task.start(fn ->
-      DynamicSupervisor.start_child(WorkerSupervisor, {WorkerTracker.Server, instance})
+      DynamicSupervisor.start_child(
+        WorkerSupervisor,
+        {WorkerTracker.WorkerInstance.Server, instance}
+      )
     end)
 
-    {:noreply, instances}
+    {:noreply, nil}
   end
 end

@@ -1,4 +1,4 @@
-defmodule WorkerTracker.WaitingWorkerProcess do
+defmodule WorkerTracker.WorkerInstance.WaitingWorkerProcess do
   defstruct(
     owner: "",
     pid: 0,
@@ -6,7 +6,8 @@ defmodule WorkerTracker.WaitingWorkerProcess do
     name: ""
   )
 
-  alias WorkerTracker.{ProcessHelper, WaitingWorkerProcess}
+  alias __MODULE__
+  alias WorkerTracker.ProcessHelper
 
   @doc ~S"""
   Parses waiting worker information from the given process string
@@ -14,8 +15,8 @@ defmodule WorkerTracker.WaitingWorkerProcess do
   ## Example
 
       iex> process_string = "deploy 12345 23456 b c d e f g h i j some_worker_process"
-      iex> WorkerTracker.WaitingWorkerProcess.parse_worker_process(process_string)
-      %WorkerTracker.WaitingWorkerProcess{owner: "deploy", pid: 12345, ppid: 23456, name: "some_worker_process"}
+      iex> WorkerTracker.WorkerInstance.WaitingWorkerProcess.parse_worker_process(process_string)
+      %WorkerTracker.WorkerInstance.WaitingWorkerProcess{owner: "deploy", pid: 12345, ppid: 23456, name: "some_worker_process"}
   """
   def parse_worker_process(process_string) do
     process_string

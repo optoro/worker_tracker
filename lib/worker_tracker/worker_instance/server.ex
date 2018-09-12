@@ -1,9 +1,10 @@
-defmodule WorkerTracker.Server do
+defmodule WorkerTracker.WorkerInstance.Server do
   use GenServer
 
-  @refresh_interval :timer.seconds(10)
+  @refresh_interval :timer.seconds(20)
 
-  alias WorkerTracker.{RegistryHelper, WorkerInstance}
+  alias WorkerTracker.RegistryHelper
+  alias WorkerTracker.WorkerInstance.Client
 
   # Client API
   def start_link(instance) do
@@ -37,10 +38,9 @@ defmodule WorkerTracker.Server do
 
   # Server  API
   def init(instance) do
-    worker_instance = WorkerInstance.from_instance_name(instance)
+    worker_instance = Client.from_instance_name(instance)
     register_with_registry(instance)
     schedule_refresh()
-    RegistryHelper.dispatch(WorkerTracker.Notifier, "worker_instance_ready", instance)
     {:ok, worker_instance}
   end
 
@@ -49,26 +49,26 @@ defmodule WorkerTracker.Server do
   end
 
   def handle_call({:terminate_process, process_id, use_sudo}, _from, worker_instance) do
-    WorkerInstance.terminate_process(worker_instance, process_id, use_sudo)
-    worker_instance = WorkerInstance.refresh_instance(worker_instance)
+    Client.terminate_process(worker_instance, process_id, use_sudo)
+    worker_instance = Client.refresh_instance(worker_instance)
     {:reply, worker_instance, worker_instance}
   end
 
   def handle_cast(:refresh_instance, worker_instance) do
-    worker_instance = WorkerInstance.refresh_instance(worker_instance)
+    worker_instance = Client.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
   def handle_cast({:terminate_process, process_id, use_sudo}, worker_instance) do
-    WorkerInstance.terminate_process(worker_instance, process_id, use_sudo)
-    worker_instance = WorkerInstance.refresh_instance(worker_instance)
+    Client.terminate_process(worker_instance, process_id, use_sudo)
+    worker_instance = Client.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
   def handle_info(:refresh, worker_instance) do
     worker_instance =
       worker_instance
-      |> WorkerInstance.refresh_instance()
+      |> Client.refresh_instance()
 
     schedule_refresh()
 

@@ -1,4 +1,4 @@
 defmodule WaitingWorkerProcessTest do
   use ExUnit.Case
-  doctest WorkerTracker.WaitingWorkerProcess
+  doctest WorkerTracker.WorkerInstance.WaitingWorkerProcess
 end

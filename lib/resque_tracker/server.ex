@@ -1,6 +1,8 @@
 defmodule ResqueTracker.Server do
   use GenServer
 
+  alias ResqueTracker.Client
+
   # Client API
 
   def start_link(redis_instance) do
@@ -10,41 +12,23 @@ defmodule ResqueTracker.Server do
   # Server API
 
   def init(redis_instance) do
-    {:ok, conn} =
-      "redis://#{redis_instance}"
-      |> Redix.start_link(port: 6379)
-
-    {:ok, conn}
+    client = Client.create_connection(redis_instance, Redix)
+    {:ok, client}
   end
 
-  def handle_call({:get_worker_data, instance_name, pid, worker}, _from, conn) do
-    {:ok, data} =
-      conn
-      |> Redix.command(["KEYS", "resque:worker:#{instance_name}:#{pid}:*#{worker}*"])
-
+  def handle_call({:get_worker_data, instance_name, pid, worker}, _from, client) do
     result =
-      data
-      |> Enum.map(fn key -> {key, Redix.command(conn, ["GET", key])} end)
-      |> Enum.map(fn {key, {:ok, value}} -> {key, value} end)
+      client
+      |> Client.get_worker_data(instance_name, worker, pid)
 
-    {:reply, result, conn}
+    {:reply, result, client}
   end
 
-  def handle_call({:get_failed_workers, count}, _from, conn) do
-    {:ok, length} =
-      conn
-      |> Redix.command(["LLEN", "resque:failed"])
+  def handle_call({:get_failed_workers, count}, _from, client) do
+    result =
+      client
+      |> Client.get_failed_workers(count)
 
-    index =
-      (length - count)
-      |> Integer.to_string()
-
-    {:ok, data} =
-      conn
-      |> Redix.command(["LRANGE", "resque:failed", index, "-1"])
-
-    data = data |> Enum.reverse()
-
-    {:reply, data, conn}
+    {:reply, result, client}
   end
 end
