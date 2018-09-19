@@ -1,4 +1,4 @@
-defmodule WorkerTracker.ActiveWorkerProcess do
+defmodule WorkerTracker.WorkerInstance.ActiveWorkerProcess do
   defstruct(
     owner: "",
     pid: 0,
@@ -7,7 +7,8 @@ defmodule WorkerTracker.ActiveWorkerProcess do
     start_time_seconds: 0
   )
 
-  alias WorkerTracker.{ActiveWorkerProcess, ProcessHelper}
+  alias __MODULE__
+  alias WorkerTracker.ProcessHelper
 
   @doc ~S"""
   Parses active worker information from the given process string
@@ -15,8 +16,8 @@ defmodule WorkerTracker.ActiveWorkerProcess do
   ## Example
 
       iex> process_string = "deploy 12345 23456 b c d e f g h i j k 1516831492 [some_worker_process]"
-      iex> WorkerTracker.ActiveWorkerProcess.parse_worker_process(process_string)
-      %WorkerTracker.ActiveWorkerProcess{owner: "deploy", pid: 12345, ppid: 23456, start_time_seconds: 1516831492, name: "some_worker_process"}
+      iex> WorkerTracker.WorkerInstance.ActiveWorkerProcess.parse_worker_process(process_string)
+      %WorkerTracker.WorkerInstance.ActiveWorkerProcess{owner: "deploy", pid: 12345, ppid: 23456, start_time_seconds: 1516831492, name: "some_worker_process"}
   """
   def parse_worker_process(process_string) do
     process_string

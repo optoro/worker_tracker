@@ -7,7 +7,7 @@ defmodule WorkerTracker.RegistryHelper do
   @type registry :: atom
 
   @doc ~S"""
-    Register an instance with the WorkerTracker Registry."
+    Register an instance with the WorkerTracker InstanceRegistry.
   """
   @spec register(String.t()) :: {:error, {:already_registered, pid()}} | {:ok, pid()}
   def register(instance) do
@@ -50,9 +50,13 @@ defmodule WorkerTracker.RegistryHelper do
   def dispatch(registry, channel, payload) do
     Registry.dispatch(registry, channel, fn entries ->
       for {pid, _name} <- entries do
-        send(pid, {String.to_atom(channel), payload})
+        send(pid, {:broadcast, payload})
       end
     end)
+  end
+
+  def notify(channel, payload) do
+    dispatch(WorkerTracker.Notifier, channel, payload)
   end
 
   @doc ~S"""

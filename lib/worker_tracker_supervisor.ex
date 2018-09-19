@@ -13,7 +13,7 @@ defmodule WorkerTrackerSupervisor do
       {Registry, [keys: :unique, name: WorkerTracker.InstanceRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.WorkerRegistry]},
       {DynamicSupervisor, name: InstanceSupervisor, strategy: :one_for_one, max_restarts: 100},
-      {DynamicSupervisor, name: WorkerSupervisor, strategy: :one_for_one, max_restarts: 100},
+      {DynamicSupervisor, name: WorkerSupervisor, strategy: :one_for_one, max_restarts: 1000},
       {Task.Supervisor, name: WorkerTracker.TaskSupervisor},
       {WorkerServer, []}
     ]
