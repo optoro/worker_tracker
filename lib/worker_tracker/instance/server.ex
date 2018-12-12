@@ -1,6 +1,8 @@
 defmodule WorkerTracker.Instance.Server do
   use GenServer
 
+  import WorkerTracker.RegistryHelper, only: [notify: 2]
+
   alias WorkerTracker.Instance.Client
 
   def start_link(instance) do
@@ -9,16 +11,22 @@ defmodule WorkerTracker.Instance.Server do
   end
 
   def init(instance) do
-    Client.create_connection(instance, SSHEx)
+    Process.send_after(self(), :send_notify, 1000)
+    {:ok, instance}
   end
 
-  def handle_call({:execute_command, command}, _from, conn) do
-    result = Client.execute_command(conn, command, SSHEx)
-    {:reply, result, conn}
+  def handle_call({:execute_command, command}, _from, instance) do
+    result = Client.execute_command(instance, command)
+    {:reply, result, instance}
   end
 
-  def handle_cast({:execute_command, command}, _from, conn) do
-    Client.execute_command(conn, command, SSHEx)
-    {:noreply, conn}
+  def handle_cast({:execute_command, command}, _from, instance) do
+    Client.execute_command(instance, command)
+    {:noreply, instance}
+  end
+
+  def handle_info(:send_notify, instance) do
+    notify("connection_ready", instance)
+    {:noreply, instance}
   end
 end

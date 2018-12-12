@@ -22,7 +22,6 @@ defmodule WorkerTracker.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:sshex, "2.2.1"},
       {:redix, ">= 0.0.0"},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
       # {:dep_from_hexpm, "~> 0.3.0"},
