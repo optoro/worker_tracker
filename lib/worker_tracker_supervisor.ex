@@ -12,10 +12,13 @@ defmodule WorkerTrackerSupervisor do
       {Registry, [keys: :duplicate, name: WorkerTracker.CollectionRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.InstanceRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.WorkerRegistry]},
+      {Registry, [keys: :unique, name: WorkerTracker.TmuxRegistry]},
       {DynamicSupervisor, name: InstanceSupervisor, strategy: :one_for_one, max_restarts: 100},
       {DynamicSupervisor, name: WorkerSupervisor, strategy: :one_for_one, max_restarts: 1000},
+      {DynamicSupervisor, name: TmuxSupervisor, strategy: :one_for_one, max_restarts: 1000},
       {Task.Supervisor, name: WorkerTracker.TaskSupervisor},
-      {WorkerServer, []}
+      {WorkerServer, []},
+      {TmuxTracker, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
