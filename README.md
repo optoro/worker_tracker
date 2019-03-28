@@ -1,6 +1,6 @@
 # WorkerTracker
 
-**TODO: Add description**
+Track system processes across multiple instances over ssh connections.
 
 ## Installation
 
