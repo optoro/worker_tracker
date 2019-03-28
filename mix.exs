@@ -24,8 +24,19 @@ defmodule WorkerTracker.MixProject do
     [
       {:redix, ">= 0.0.0"},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+    ]
+  end
+
+  defp description() do
+    "Track system processes across multiple instances over ssh connections"
+  end
+
+  defp package() do
+    [
+      maintainers: ["Jeff Gillis", "Spencer Gilbert", "Anthony Johnston"],
+      files: ~w(config lib test .formatter.exs mix.exs README.md),
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/..."}
     ]
   end
 end
