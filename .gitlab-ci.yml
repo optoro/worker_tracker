@@ -12,11 +12,11 @@ check_format:
   script:
     - mix format --check-formatted --dry-run
   tags:
-    - docker-executor
+    - kubernetes
 
 run_tests:
   stage: test
   script:
     - mix test
   tags:
-    - docker-executor
+    - kubernetes
