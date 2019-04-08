@@ -11,12 +11,8 @@ check_format:
   stage: test
   script:
     - mix format --check-formatted --dry-run
-  tags:
-    - docker-executor
 
 run_tests:
   stage: test
   script:
     - mix test
-  tags:
-    - docker-executor
