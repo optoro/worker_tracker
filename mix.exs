@@ -36,7 +36,7 @@ defmodule WorkerTracker.MixProject do
       maintainers: ["Jeff Gillis", "Spencer Gilbert", "Anthony Johnston"],
       files: ~w(config lib test .formatter.exs mix.exs README.md),
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/..."}
+      links: %{"GitHub" => "https://github.com/optoro/worker_tracker"}
     ]
   end
 end
