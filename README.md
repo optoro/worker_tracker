@@ -1,5 +1,7 @@
 # WorkerTracker
 
+[![Build Status](https://travis-ci.com/optoro/worker_tracker.svg?token=jqj9iUrePDaxk4NwXCgv&branch=master)](https://travis-ci.com/optoro/worker_tracker)
+
 Track system processes across multiple instances over ssh connections.
 
 ## Installation
