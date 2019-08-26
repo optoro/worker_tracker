@@ -9,13 +9,13 @@ defmodule WorkerTracker.WorkerInstance.Server do
   # Client API
   def start_link(instance) do
     name = name_via_registry(instance)
-    GenServer.start_link(__MODULE__, instance, name: name, timeout: :infinity)
+    GenServer.start_link(__MODULE__, instance, name: name)
   end
 
   def get_instance(instance) do
     instance
     |> name_via_registry()
-    |> GenServer.call(:get_instance, :infinity)
+    |> GenServer.call(:get_instance)
   end
 
   def refresh_instance(instance) do
@@ -24,7 +24,7 @@ defmodule WorkerTracker.WorkerInstance.Server do
     |> GenServer.cast(:refresh_instance)
   end
 
-  def terminate_instance_process(instance, process_id, payload \\ %{}) do
+  def terminate_instance_process(instance, process_id, callback_data \\ %{}) do
     using_sudo = Application.get_env(:worker_tracker, :use_sudo)
 
     instance
@@ -32,20 +32,22 @@ defmodule WorkerTracker.WorkerInstance.Server do
     |> GenServer.call({:terminate_process, process_id, using_sudo}, :infinity)
 
     %{instance: instance, pid: process_id, timestamp: DateTime.utc_now()}
-    |> Map.merge(payload)
+    |> Map.merge(callback_data)
     |> notify_terminated()
   end
 
   # Server  API
+  @callback init(instance :: String.t()) :: {:ok, state :: %Client{}}
   def init(instance) do
-    worker_instance = Client.from_instance_name(instance)
     register_with_registry(instance)
-    schedule_refresh()
-    {:ok, worker_instance}
+    Process.send_after(self(), :refresh, 2000)
+    # TODO: Use handle_continue here
+    {:ok, %Client{name: instance}}
   end
 
   def handle_call(:get_instance, _from, worker_instance) do
-    {:reply, worker_instance, worker_instance}
+    client = Client.get_instance(worker_instance)
+    {:reply, client, worker_instance}
   end
 
   def handle_call({:terminate_process, process_id, use_sudo}, _from, worker_instance) do
@@ -55,7 +57,7 @@ defmodule WorkerTracker.WorkerInstance.Server do
   end
 
   def handle_cast(:refresh_instance, worker_instance) do
-    worker_instance = Client.refresh_instance(worker_instance)
+    Client.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
@@ -66,9 +68,8 @@ defmodule WorkerTracker.WorkerInstance.Server do
   end
 
   def handle_info(:refresh, worker_instance) do
-    worker_instance =
-      worker_instance
-      |> Client.refresh_instance()
+    worker_instance
+    |> Client.refresh_instance()
 
     schedule_refresh()
 

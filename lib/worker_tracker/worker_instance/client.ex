@@ -1,58 +1,86 @@
 defmodule WorkerTracker.WorkerInstance.Client do
   defstruct name: "", active_workers: [], waiting_workers: []
 
-  alias __MODULE__
   alias WorkerTracker.WorkerInstance.ActiveWorkerProcess
   alias WorkerTracker.WorkerInstance.WaitingWorkerProcess
   alias WorkerTracker.ProcessHelper
 
-  def from_instance_name(instance_name) do
-    %Client{name: instance_name}
-    |> refresh_instance()
-  end
-
-  def refresh_instance(%Client{} = worker_instance) do
+  def refresh_instance(%__MODULE__{} = worker_instance) do
     worker_instance
-    |> refresh_processes
+    |> get_all_processes()
+    |> parse_active_workers(worker_instance)
+    |> parse_waiting_workers(worker_instance)
+
+    :ok
   end
 
-  def refresh_processes(%Client{} = worker_instance) do
-    processes = worker_instance |> get_all_processes()
-
-    active_workers =
-      processes
-      |> ProcessHelper.filter_and_transform_process_list(
-        "Processing",
-        &ActiveWorkerProcess.parse_worker_process/1
-      )
-
-    waiting_workers =
-      processes
-      |> ProcessHelper.filter_and_transform_process_list(
-        "Waiting",
-        &WaitingWorkerProcess.parse_worker_process/1
-      )
-
-    %{worker_instance | active_workers: active_workers, waiting_workers: waiting_workers}
+  def get_instance(%__MODULE__{} = worker_instance) do
+    worker_instance
+    |> Map.put(:active_workers, retrieve_worker_registrations(worker_instance))
+    |> Map.put(:waiting_workers, retrieve_worker_registrations(worker_instance, "waiting"))
   end
 
-  def terminate_process(%Client{} = worker_instance, process_id, false = _use_sudo) do
+  def terminate_process(%__MODULE__{} = worker_instance, process_id, false = _use_sudo) do
     worker_instance.name
     |> execute_command("kill -9 #{process_id}")
   end
 
-  def terminate_process(%Client{} = worker_instance, process_id, true = _use_sudo) do
+  def terminate_process(%__MODULE__{} = worker_instance, process_id, true = _use_sudo) do
     worker_instance.name
     |> execute_command("sudo kill -9 #{process_id}")
   end
 
-  defp get_all_processes(%Client{} = worker_instance) do
+  defp get_all_processes(%__MODULE__{} = worker_instance) do
     worker_instance.name
     |> execute_command("ps -ejf")
     |> ProcessHelper.create_list_from_string()
   end
 
-  defp execute_command(instance, command) do
-    WorkerTracker.execute_command(instance, command)
+  defp parse_active_workers(processes, %__MODULE__{} = worker_instance) do
+    processes
+    |> ProcessHelper.filter_and_transform_process_list(
+      "Processing",
+      &ActiveWorkerProcess.parse_worker_process/1
+    )
+    |> update_worker_registrations(worker_instance.name)
+
+    processes
+  end
+
+  defp parse_waiting_workers(processes, %__MODULE__{} = worker_instance) do
+    processes
+    |> ProcessHelper.filter_and_transform_process_list(
+      "Waiting",
+      &WaitingWorkerProcess.parse_worker_process/1
+    )
+    |> update_worker_registrations(worker_instance.name, "waiting")
+  end
+
+  defp retrieve_worker_registrations(worker_instance, type \\ "active") do
+    key = "#{worker_instance.name}:#{type}_workers"
+
+    case Registry.lookup(WorkerTracker.WorkerProcesses, key) do
+      [{_pid, processes}] ->
+        processes
+
+      _ ->
+        []
+    end
+  end
+
+  defp update_worker_registrations(processes, instance_name, type \\ "active") do
+    registry_key = "#{instance_name}:#{type}_workers"
+
+    case Registry.update_value(WorkerTracker.WorkerProcesses, registry_key, fn _x -> processes end) do
+      :error ->
+        Registry.register(WorkerTracker.WorkerProcesses, registry_key, processes)
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp execute_command(instance_name, command) do
+    WorkerTracker.execute_command(instance_name, command)
   end
 end

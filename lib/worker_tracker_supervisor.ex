@@ -10,6 +10,7 @@ defmodule WorkerTrackerSupervisor do
     children = [
       {Registry, [keys: :duplicate, name: WorkerTracker.Notifier]},
       {Registry, [keys: :duplicate, name: WorkerTracker.CollectionRegistry]},
+      {Registry, [keys: :unique, name: WorkerTracker.WorkerProcesses]},
       {Registry, [keys: :unique, name: WorkerTracker.InstanceRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.WorkerRegistry]},
       {Registry, [keys: :unique, name: WorkerTracker.TmuxRegistry]},
