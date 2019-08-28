@@ -1,13 +1,15 @@
 defmodule WorkerTracker.Instance.Server do
   use GenServer
 
+  require Logger
+
   import WorkerTracker.RegistryHelper, only: [notify: 2]
 
   alias WorkerTracker.Instance.Client
 
   def start_link(instance) do
     name = Client.build_name(instance)
-    GenServer.start_link(__MODULE__, instance, name: name, timeout: :infinity)
+    GenServer.start_link(__MODULE__, instance, name: name)
   end
 
   def init(instance) do
@@ -26,6 +28,12 @@ defmodule WorkerTracker.Instance.Server do
   end
 
   def handle_info(:send_notify, instance) do
+    notify("connection_ready", instance)
+    {:noreply, instance}
+  end
+
+  def handle_info(message, instance) do
+    Logger.log(:warn, "Received unsolicited message: #{IO.inspect(message)}")
     notify("connection_ready", instance)
     {:noreply, instance}
   end

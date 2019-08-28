@@ -1,6 +1,8 @@
 defmodule WorkerTracker do
   use Application
 
+  alias WorkerTracker.WorkerInstance.Client, as: WorkerInstanceClient
+
   def start(_type, _args) do
     IO.puts("Starting the WorkerTracker Application...")
     WorkerTrackerSupervisor.start_link()
@@ -32,7 +34,11 @@ defmodule WorkerTracker do
     |> GenServer.call({:execute_command, command}, :infinity)
   end
 
-  defdelegate get_instance(instance), to: WorkerTracker.WorkerInstance.Server
+  def get_instance(instance_name) do
+    %WorkerTracker.WorkerInstance.Client{name: instance_name}
+    |> WorkerInstanceClient.get_instance()
+  end
+
   defdelegate refresh_instance(instance), to: WorkerTracker.WorkerInstance.Server
 
   defdelegate terminate_instance_process(instance, process_id, payload \\ %{}),
