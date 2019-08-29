@@ -40,9 +40,13 @@ defmodule WorkerTracker.WorkerInstance.Server do
   @callback init(instance :: String.t()) :: {:ok, state :: %Client{}}
   def init(instance) do
     register_with_registry(instance)
-    Process.send_after(self(), :refresh, 2000)
     # TODO: Use handle_continue here
-    {:ok, %Client{name: instance}}
+    {:ok, %Client{name: instance}, {:continue, :start_timer}}
+  end
+
+  def handle_continue(:start_timer, worker_instance) do
+    Process.send_after(self(), :refresh, 2000)
+    {:noreply, worker_instance}
   end
 
   def handle_call(:get_instance, _from, worker_instance) do
@@ -63,7 +67,6 @@ defmodule WorkerTracker.WorkerInstance.Server do
 
   def handle_cast({:terminate_process, process_id, use_sudo}, worker_instance) do
     Client.terminate_process(worker_instance, process_id, use_sudo)
-    worker_instance = Client.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
