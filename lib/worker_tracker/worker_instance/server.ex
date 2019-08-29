@@ -56,17 +56,18 @@ defmodule WorkerTracker.WorkerInstance.Server do
 
   def handle_call({:terminate_process, process_id, use_sudo}, _from, worker_instance) do
     Client.terminate_process(worker_instance, process_id, use_sudo)
-    worker_instance = Client.refresh_instance(worker_instance)
+    :ok = Client.refresh_instance(worker_instance)
     {:reply, worker_instance, worker_instance}
   end
 
   def handle_cast(:refresh_instance, worker_instance) do
-    Client.refresh_instance(worker_instance)
+    :ok = Client.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
   def handle_cast({:terminate_process, process_id, use_sudo}, worker_instance) do
     Client.terminate_process(worker_instance, process_id, use_sudo)
+    :ok = Client.refresh_instance(worker_instance)
     {:noreply, worker_instance}
   end
 
