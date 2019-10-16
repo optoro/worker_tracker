@@ -1,27 +1,31 @@
 defmodule TmuxTracker.TmuxProcess do
-  defstruct owner: "", pid: "", name: "", instance: ""
-
-  alias __MODULE__
-  alias WorkerTracker.ProcessHelper
+  defstruct owner: "", pid: "", command: "", instance: "", elaspsed_time: 0
 
   def create(instance, process_string) do
-    client = %TmuxProcess{instance: instance}
+    client = %__MODULE__{instance: instance}
 
-    process_string
-    |> ProcessHelper.process_fields(client, &build_tmux_client/2)
+    ~r/(?<pid>\d+)\s(?<user>.*?)\s+(?<command>.*?)\s+(?<elaspsed_time>\d+$)/
+    |> Regex.named_captures(process_string)
+    |> Map.to_list()
+    |> Enum.reduce(client, &build_tmux_client/2)
   end
 
-  defp build_tmux_client({value, 0}, tmux_process) do
-    %{tmux_process | owner: value}
+  defp build_tmux_client({"user", user}, tmux_process) do
+    %{tmux_process | owner: user}
   end
 
-  defp build_tmux_client({value, 1}, tmux_process) do
-    pid = value |> String.to_integer()
+  defp build_tmux_client({"pid", pid}, tmux_process) do
+    pid = pid |> String.to_integer()
     %{tmux_process | pid: pid}
   end
 
-  defp build_tmux_client({value, 10}, tmux_process) do
-    %{tmux_process | name: value}
+  defp build_tmux_client({"command", command}, tmux_process) do
+    %{tmux_process | command: command}
+  end
+
+  defp build_tmux_client({"elaspsed_time", etime}, tmux_process) do
+    etime = etime |> String.to_integer()
+    %{tmux_process | elaspsed_time: etime}
   end
 
   defp build_tmux_client({_value, _}, tmux_process) do
