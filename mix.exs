@@ -4,8 +4,8 @@ defmodule WorkerTracker.MixProject do
   def project do
     [
       app: :worker_tracker,
-      version: "0.2.1",
-      elixir: "~> 1.6",
+      version: "0.3.0",
+      elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),

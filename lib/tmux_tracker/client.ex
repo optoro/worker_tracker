@@ -16,7 +16,7 @@ defmodule TmuxTracker.Client do
 
   defp get_processes(instance) do
     instance
-    |> WorkerTracker.execute_command("ps aux | grep tmux | grep -v grep")
+    |> WorkerTracker.execute_command("ps -xao pid,user,cmd,etimes | grep tmux | grep -v grep")
     |> ProcessHelper.create_list_from_string()
   end
 
