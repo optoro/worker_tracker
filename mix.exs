@@ -4,7 +4,7 @@ defmodule WorkerTracker.MixProject do
   def project do
     [
       app: :worker_tracker,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -36,7 +36,7 @@ defmodule WorkerTracker.MixProject do
 
   defp package() do
     [
-      maintainers: ["Jeff Gillis", "Spencer Gilbert", "Anthony Johnston"],
+      maintainers: ["Jeff Gillis", "Spencer Gilbert", "Anthony Johnston", "Venky Jeyanthilal"],
       files: ~w(config lib test .formatter.exs mix.exs README.md),
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/optoro/worker_tracker"}
