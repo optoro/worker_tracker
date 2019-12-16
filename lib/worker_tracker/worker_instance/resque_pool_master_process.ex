@@ -57,9 +57,10 @@ defmodule WorkerTracker.WorkerInstance.ResquePoolMasterProcess do
     if index > 10 do
       managed_pid =
         value
-        |> String.replace(~r/[^\d]/,"")
-        |> String.to_integer
-      %{master_process | managed_processes: master_process.managed_processes ++ [managed_pid] }
+        |> String.replace(~r/[^\d]/, "")
+        |> String.to_integer()
+
+      %{master_process | managed_processes: master_process.managed_processes ++ [managed_pid]}
     else
       master_process
     end
