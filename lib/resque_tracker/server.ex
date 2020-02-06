@@ -6,7 +6,7 @@ defmodule ResqueTracker.Server do
   # Client API
 
   def start_link(redis_instance) do
-    GenServer.start_link(__MODULE__, redis_instance, name: __MODULE__)
+    GenServer.start_link(__MODULE__, redis_instance, name: __MODULE__, timeout: 10_000)
   end
 
   # Server API
